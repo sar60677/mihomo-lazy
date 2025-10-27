@@ -79,6 +79,7 @@ mihomo懒人版/
 - 📡 启动后可通过 Web UI 面板进行配置管理
 - 💾 配置文件路径：`config.yaml`
 - 🌐 默认端口：7890（HTTP）、7891（SOCKS5）
+- 💾 请在config.yaml文件里面填写订阅链接
 
 ## ❓ 常见问题
 
