@@ -1,0 +1,81 @@
+# 极简版 Clash 配置
+mixed-port: 7897
+allow-lan: false
+mode: rule
+log-level: info
+ipv6: false
+unified-delay: true
+
+# 控制面板
+external-controller: 127.0.0.1:9090
+external-ui: zashboard 
+secret: ""
+
+tun:
+  enable: false # 修改为false，由面板来切换是否开启tun  
+
+geo-update-interval: 24
+geox-url:
+  geoip: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip-lite.dat
+  geosite: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat
+  mmdb: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb
+  asn: https://gh-proxy.com/https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb
+
+# DNS
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+
+# 订阅配置
+proxy-providers:
+  家里云:
+    type: http
+    url: "这里放第一个订阅链接"
+    interval: 3600
+    path: ./providers/homcloud.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+  
+  免费云:
+    type: http
+    url: "这里放第二个订阅链接"
+    interval: 3600
+    path: ./providers/freecloud.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+proxy-groups:
+  - name: 🚀 代理选择
+    type: select
+    proxies:
+      - 📦 家里云
+      - 📦 免费云
+      - DIRECT
+  
+  - name: 📦 家里云
+    type: select
+    use:
+      - 家里云
+  
+  - name: 📦 免费云
+    type: select
+    use:
+      - 免费云
+
+rules:
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,127.0.0.0/8,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT
+  - IP-CIDR,10.0.0.0/8,DIRECT
+  - IP-CIDR,172.16.0.0/12,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,🚀 代理选择
