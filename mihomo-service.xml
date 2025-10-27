@@ -1,0 +1,34 @@
+<service>
+  <!-- 服务的唯一ID，必须是英文，不能有空格 -->
+  <id>mihomo</id>
+  
+  <!-- 在 Windows 服务列表中显示的名字 -->
+  <name>Mihomo Core Service</name>
+  
+  <!-- 服务的描述 -->
+  <description>Mihomo core program running as a Windows service.</description>
+
+  <!-- 要运行的程序 -->
+  <executable>mihomo.exe</executable>
+  
+  <!-- 传递给程序的启动参数 -->
+  <!-- 这完全对应于你之前的命令: mihomo.exe -f config.yaml -d . -->
+  <arguments>-f %BASE%/config.yaml -d %BASE%/config</arguments>
+  
+  <!-- 设置工作目录。%BASE% 是一个特殊变量，代表 WinSW 程序所在的目录 -->
+  <!-- 这等同于你之前的 "cd /d D:\...\" 命令 -->
+  <workingdirectory>%BASE%</workingdirectory>
+
+  <!-- 日志配置，非常重要！服务运行的日志会保存在这里 -->
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold> <!-- 日志文件大小达到 10MB 时滚动 -->
+    <keepFiles>8</keepFiles> <!-- 保留 8 个旧的日志文件 -->
+  </log>
+  
+  <!-- 设置服务开机自启 -->
+  <startmode>Automatic</startmode>
+
+  <!-- 延迟启动，给系统其他服务一点时间，可以避免启动时网络未就绪的问题 -->
+  <delayedAutoStart>true</delayedAutoStart>
+  
+</service>

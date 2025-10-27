@@ -1,5 +1,29 @@
+# 订阅配置
+proxy-providers:
+  freeCloud:
+    type: http
+    url: "https://gucci.weyolo.com/s/e357d61b4aa4242e9a407d93119331f5"
+    interval: 3600
+    path: ./providers/freecloud.yaml
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+  
+  other:
+    type: http
+    url: "订阅连接放这里"
+    interval: 3600
+    path: ./providers/other.yaml
+    # proxy: 🚀 代理选择   # 如果需要设置通过代理更新取消注释
+    health-check:
+      enable: true
+      interval: 300
+      url: http://www.gstatic.com/generate_204
+
+
 # 极简版 Clash 配置
-mixed-port: 7897
+mixed-port: 7890
 allow-lan: false
 mode: rule
 log-level: info
@@ -8,11 +32,10 @@ unified-delay: true
 
 # 控制面板
 external-controller: 127.0.0.1:9090
-external-ui: zashboard 
 secret: ""
-
-tun:
-  enable: false # 修改为false，由面板来切换是否开启tun  
+external-ui-name: zashboard
+external-ui: "./ui"
+external-ui-url: "https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
 
 geo-update-interval: 24
 geox-url:
@@ -26,50 +49,62 @@ dns:
   enable: true
   ipv6: false
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "+.local"
+    - "+.market.xiaomi.com"
+  default-nameserver:
+    - tls://223.5.5.5
+    - tls://223.6.6.6
   nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
 
-# 订阅配置
-proxy-providers:
-  家里云:
-    type: http
-    url: "这里放第一个订阅链接"
-    interval: 3600
-    path: ./providers/homcloud.yaml
-    health-check:
-      enable: true
-      interval: 300
-      url: http://www.gstatic.com/generate_204
-  
-  免费云:
-    type: http
-    url: "这里放第二个订阅链接"
-    interval: 3600
-    path: ./providers/freecloud.yaml
-    health-check:
-      enable: true
-      interval: 300
-      url: http://www.gstatic.com/generate_204
+tun:
+  enable: false # 修改为false，由面板来切换是否开启tun  
+  stack: mixed
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+
 
 proxy-groups:
   - name: 🚀 代理选择
     type: select
     proxies:
-      - 📦 家里云
-      - 📦 免费云
+      - 📦 freeCloud
+      - 📦 other
       - DIRECT
   
-  - name: 📦 家里云
+  - name: 📦 freeCloud
     type: select
     use:
-      - 家里云
+      - freeCloud
   
-  - name: 📦 免费云
+  - name: 📦 other
     type: select
     use:
-      - 免费云
+      - other
+      
+  - name: 🤖 人工智能
+    type: select
+    use:
+      - freeCloud
+    filter: '^(?=.*((?i)落地|家宽)).*$'
+
+# 订阅规则
+rule-providers:
+  ai_non_ip:
+    type: http
+    behavior: classical
+    interval: 43200
+    format: text
+    url: https://ruleset.skk.moe/Clash/non_ip/ai.txt
+    path: ./rule_set/sukkaw_ruleset/ai_non_ip.txt
 
 rules:
   - DOMAIN-SUFFIX,local,DIRECT
@@ -78,4 +113,5 @@ rules:
   - IP-CIDR,10.0.0.0/8,DIRECT
   - IP-CIDR,172.16.0.0/12,DIRECT
   - GEOIP,CN,DIRECT
+  - RULE-SET,ai_non_ip,🤖 人工智能
   - MATCH,🚀 代理选择
