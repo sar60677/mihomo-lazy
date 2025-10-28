@@ -4,7 +4,7 @@
 
 ## 📥 下载
 
-由于 mihomo.exe 核心文件较大（32MB），请前往 [Releases](https://github.com/hubentuan/mihomo-/releases) 页面下载完整版压缩包。
+~~由于 mihomo.exe 核心文件较大（32MB）~~，请前往 [Releases](https://github.com/sar60677/mihomo-lazy/releases) 页面下载完整版压缩包。
 
 ## ✨ 功能特点
 
@@ -36,7 +36,7 @@ D:\zhstzzy\Downloads\imFile\Clash\
 
 ### 1. 下载完整版
 
-前往 [Releases](https://github.com/hubentuan/mihomo-/releases/latest) 页面下载 `mihomo懒人版-v1.0.0.zip`
+前往 [Releases](https://github.com/hubentuan/mihomo-/releases/latest) 页面下载 `mihomo windows懒人版1.0.0.zip`
 
 ### 2. 解压文件
 
@@ -78,5 +78,4 @@ proxy-providers:
 ### 5. 访问面板
 
 打开浏览器访问：http://127.0.0.1:9090/ui/zashboard
-
 
