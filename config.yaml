@@ -2,7 +2,7 @@
 proxy-providers:
   freeCloud:
     type: http
-    url: "https://gucci.weyolo.com/s/e357d61b4aa4242e9a407d93119331f5"
+    url: "订阅连接放这里"
     interval: 3600
     path: ./providers/freecloud.yaml
     health-check:
