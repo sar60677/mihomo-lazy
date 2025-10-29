@@ -4,7 +4,7 @@
 
 ## 📥 下载
 
-~~由于 mihomo.exe 核心文件较大（32MB）~~，请前往 [Releases](https://github.com/sar60677/mihomo-lazy/releases) 页面下载完整版压缩包。
+由于 `mihomo.exe` 核心文件 和 `mihomo-service.exe` WinSW程序文件较大，请前往 [Releases](https://github.com/sar60677/mihomo-lazy/releases) 页面下载完整版压缩包。
 
 ## ✨ 功能特点
 
