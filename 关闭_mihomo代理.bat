@@ -47,28 +47,30 @@ echo --- 步骤 2/2: 清除系统代理设置 ---
 echo.
 echo [操作] 正在禁用系统代理并清除代理服务器设置...
 
-:: Disable proxy (set ProxyEnable to 0)
+:: 禁用代理 (将 ProxyEnable 设置为 0)
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d 0 /f >nul
 if %errorlevel% equ 0 (
-    echo [成功] 系统代理已禁用。 (ProxyEnable=0)
+    echo [成功] 系统代理已禁用
 ) else (
-    echo [错误] 禁用系统代理失败。
+    echo [错误] 禁用系统代理失败
 )
 
-:: Clear ProxyServer setting
+:: 清除 ProxyServer 设置
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /f >nul 2>&1
 if %errorlevel% equ 0 (
     echo [成功] 代理服务器地址已清除。
 ) else (
-    echo [信息] ProxyServer 注册表项未找到或已清除。
+    rem 如果注册表项不存在，删除会失败，但这不是错误
+    echo [信息] ProxyServer 注册表项未找到或已清除
 )
 
-:: Clear ProxyOverride setting (e.g., for local addresses)
+:: 清除 ProxyOverride 设置 (例如，用于本地地址)
 reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyOverride /f >nul 2>&1
 if %errorlevel% equ 0 (
-    echo [成功] 代理绕过地址已清除。
+    echo [成功] 代理绕过地址已清除
 ) else (
-    echo [信息] ProxyOverride 注册表项未找到或已清除。
+    rem 如果注册表项不存在，删除会失败，但这不是错误
+    echo [信息] ProxyOverride 注册表项未找到或已清除
 )
 
 echo [信息] 基于注册表的代理设置已清除。

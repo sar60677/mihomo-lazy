@@ -26,7 +26,7 @@ echo.
 set "SERVICE_NAME=mihomo"
 set "MIHOMO_EXECUTABLE=mihomo-service.exe"
 set "PROXY_ADDRESS=127.0.0.1:7890"  :: Mihomo/Clash 常见的默认 HTTP/SOCKS 代理地址
-set "PROXY_BYPASS=<local>;localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.2*.*;172.30.*;172.31.*;192.168.*" :: 代理绕过地址 (例如局域网等)
+set "PROXY_BYPASS=localhost;127.*;192.168.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*" :: 代理绕过地址 (例如局域网等)
 
 :: --- 步骤 1: 安装 '%SERVICE_NAME%' 服务 ---
 echo --- 步骤 1/3: 安装 '%SERVICE_NAME%' 服务 ---
