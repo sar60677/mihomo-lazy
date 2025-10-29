@@ -36,7 +36,7 @@ D:\zhstzzy\Downloads\imFile\Clash\
 
 ### 1. 下载完整版
 
-前往 [Releases](https://github.com/hubentuan/mihomo-/releases/latest) 页面下载 `mihomo windows懒人版1.0.0.zip`
+前往 [Releases](https://github.com/hubentuan/mihomo-/releases/latest) 页面下载
 
 ### 2. 解压文件
 
