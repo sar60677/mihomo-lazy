@@ -1,0 +1,5 @@
+*.zip
+config/*
+mihomo-service.err.log
+mihomo-service.out.log
+mihomo-service.wrapper.log

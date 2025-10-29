@@ -1,0 +1,70 @@
+name: Auto Release Zip
+
+on:
+  push:
+    tags:
+      - 'v*' # v1.0.0 / v1.2.3-alpha
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Compute meta
+        id: meta
+        shell: pwsh
+        run: |
+          "TAG_NAME=$env:GITHUB_REF_NAME" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "ZIP_NAME=$($env:GITHUB_REPOSITORY.Split('/')[1])-$env:GITHUB_REF_NAME.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Create ZIP archive (UTF-8, exclude .git/.github/.gitignore/self)
+        shell: pwsh
+        run: |
+          $zip   = "${{ steps.meta.outputs.ZIP_NAME }}"
+          $root  = (Get-Location).Path
+          $git   = Join-Path $root ".git"
+          $ghub  = Join-Path $root ".github"
+          $zipFp = Join-Path $root $zip
+
+          # 只拿文件，排除 .git / .github 整个子树、.gitignore、以及生成的 zip 本身
+          $items = Get-ChildItem -Force -File -Recurse -ErrorAction SilentlyContinue | Where-Object {
+            $_.FullName -notlike "$git\*"   -and
+            $_.FullName -notlike "$ghub\*"  -and
+            $_.FullName -ne $zipFp          -and
+            $_.Name     -ne ".gitignore"
+          }
+
+          # 用相对路径打包（避免绝对路径进入压缩包）
+          $relPaths = $items | ForEach-Object { Resolve-Path -Relative $_.FullName }
+          Compress-Archive -Path $relPaths -DestinationPath $zip -Force
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.TAG_NAME }}
+          name: ${{ github.event.repository.name }} ${{ steps.meta.outputs.TAG_NAME }}
+          draft: false
+          # mark stable tags as "latest"; pre-release tags (contain '-') are not latest
+          make_latest: ${{ !contains(steps.meta.outputs.TAG_NAME, '-') }}
+          prerelease: ${{ contains(steps.meta.outputs.TAG_NAME, '-') }}
+          body: |
+            mihomo Windows 懒人版
+            基于 mihomo 内核的一键部署方案，包含完整配置和 Web UI 控制面板。
+
+            ✨ 功能特点
+            ✅ 基于 mihomo 内核
+            ✅ 内置 Web UI 控制面板
+            ✅ 包含完整配置文件
+            ✅ 一键启动/停止脚本
+            ✅ 懒人命令一键开启系统代理
+
+            版本：${{ steps.meta.outputs.TAG_NAME }}
+          files: |
+            ${{ steps.meta.outputs.ZIP_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
