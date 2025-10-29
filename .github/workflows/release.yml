@@ -22,6 +22,64 @@ jobs:
           "TAG_NAME=$env:GITHUB_REF_NAME" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "ZIP_NAME=$($env:GITHUB_REPOSITORY.Split('/')[1])-$env:GITHUB_REF_NAME.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
+      # ↓↓↓ 新增：拉取 WinSW latest 的 WinSW-x64.exe 并重命名为 mihomo-service.exe
+      - name: Download latest WinSW (x64) -> mihomo-service.exe
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{
+            "Accept"               = "application/vnd.github+json"
+            "Authorization"        = "Bearer $env:GH_TOKEN"
+            "X-GitHub-Api-Version" = "2022-11-28"
+            "User-Agent"           = "github-actions"
+          }
+          $api = "https://api.github.com/repos/winsw/winsw/releases/latest"
+          $rel = Invoke-RestMethod -Uri $api -Headers $headers -Method Get
+          $asset = $rel.assets | Where-Object { $_.name -eq "WinSW-x64.exe" -or $_.name -match "^WinSW-x64.*\.exe$" } | Select-Object -First 1
+          if (-not $asset) { throw "WinSW latest release 中未找到 WinSW-x64.exe" }
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile "mihomo-service.exe"
+
+      # ↓↓↓ 新增：拉取 mihomo latest 的 Windows x64 压缩包，解压出 exe 并改名为 mihomo.exe
+      - name: Download latest mihomo (Windows x64), extract -> mihomo.exe
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{
+            "Accept"               = "application/vnd.github+json"
+            "Authorization"        = "Bearer $env:GH_TOKEN"
+            "X-GitHub-Api-Version" = "2022-11-28"
+            "User-Agent"           = "github-actions"
+          }
+          $api = "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest"
+          $rel = Invoke-RestMethod -Uri $api -Headers $headers -Method Get
+
+          # 兼容多种常见命名：mihomo-for-windows-x64-*.zip / mihomo-windows-amd64-*.zip / mihomo-windows-amd64.zip
+          $asset = $rel.assets | Where-Object {
+            $_.name -match "^mihomo(-for)?-windows-(x64|amd64).*\.zip$"
+          } | Sort-Object name -Descending | Select-Object -First 1
+
+          if (-not $asset) { throw "mihomo latest release 中未找到 Windows x64 压缩包资产" }
+
+          $zipPath = "mihomo.zip"
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath
+
+          $dst = "mihomo_extracted"
+          if (Test-Path $dst) { Remove-Item -Recurse -Force $dst }
+          Expand-Archive -Path $zipPath -DestinationPath $dst -Force
+
+          # 从解压目录中找到 mihomo 的 exe，并重命名到仓库根目录
+          $exe = Get-ChildItem -Path $dst -Recurse -Filter *.exe |
+                 Where-Object { $_.Name -match "^mihomo.*\.exe$" } |
+                 Select-Object -First 1
+          if (-not $exe) { throw "未在压缩包中找到 mihomo 可执行文件（*.exe）" }
+          Copy-Item $exe.FullName -Destination "mihomo.exe" -Force
+
+          # 清理临时文件，避免被打包进最终 ZIP
+          Remove-Item -Recurse -Force $dst
+          Remove-Item -Force $zipPath
+
       - name: Create ZIP archive (UTF-8, exclude .git/.github/.gitignore/self)
         shell: pwsh
         run: |
@@ -49,7 +107,6 @@ jobs:
           tag_name: ${{ steps.meta.outputs.TAG_NAME }}
           name: ${{ github.event.repository.name }} ${{ steps.meta.outputs.TAG_NAME }}
           draft: false
-          # mark stable tags as "latest"; pre-release tags (contain '-') are not latest
           make_latest: ${{ !contains(steps.meta.outputs.TAG_NAME, '-') }}
           prerelease: ${{ contains(steps.meta.outputs.TAG_NAME, '-') }}
           body: |
